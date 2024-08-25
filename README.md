@@ -2,6 +2,13 @@
 
 This is the starter project for [Secure a .NET web app with the ASP.NET Core Identity framework](https://docs.microsoft.com/learn/modules/secure-aspnet-core-identity/). A completed version of the project is located on the `solution` branch.
 
+# Configuration / Libraries
+
+### Entityframework Core instalation
+``` bash
+dotnet tool install dotnet-ef --version 8.0.* --global
+```
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
@@ -32,3 +39,5 @@ Privacy information can be found at https://privacy.microsoft.com/en-us/
 
 Microsoft and any contributors reserve all other rights, whether under their respective copyrights, patents,
 or trademarks, whether by implication, estoppel or otherwise.
+
+
