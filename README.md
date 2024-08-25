@@ -9,6 +9,76 @@ This is the starter project for [Secure a .NET web app with the ASP.NET Core Ide
 dotnet tool install dotnet-ef --version 8.0.* --global
 ```
 
+# Base de dados
+Vamos utilizar o dokcer e criaremos a imagem com o comendo abaixo;
+
+``` bash
+docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=@Passw0rd"  -p 1433:1433 --name sql1 --hostname 
+sql1 -d mcr.microsoft.com/mssql/server:2019-latest
+```
+
+## Criar usu[ario
+```bash
+docker run -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=<YourStrong!Passw0rd>' --name 'sql1' -p 1401:1433 -v sql1data:/var/opt/mssql -d mcr.microsoft.com/mssql/server:2019-latest
+```
+
+```bash
+docker exec -it sql1 /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P '<YourStrong!Passw0rd>' -Q 'ALTER LOGIN SA WITH PASSWORD="<YourNewStrong!Passw0rd>"'
+```
+
+```bash
+docker exec -it sql1 /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P '<YourNewStrong!Passw0rd>' -Q 'SELECT Name FROM sys.Databases'
+```
+
+```bash
+docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=SuaSenhaForte123' -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server:2019-latest
+```
+
+1. Verifique as configurações de autenticação
+Certifique-se de que o SQL Server está configurado para aceitar autenticação SQL Server (em vez de apenas autenticação do Windows). Isso pode ser verificado e ajustado dentro do contêiner usando o comando sqlcmd ou via Azure Data Studio:
+docker exec -it sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'SuaSenhaForte123'
+
+```bash
+CREATE LOGIN NovoLogin WITH PASSWORD = 'NovaSenhaForte123';
+GO
+```
+
+Criar o Usuário no Banco de Dados:
+
+Agora, associe o login a um usuário em um banco de dados específico. Aqui vamos criar o usuário no banco de dados master, mas você pode escolher outro banco de dados se desejar:
+
+```sql
+USE master;
+CREATE USER <NovoLogin> FOR LOGIN <NovoLogin>;
+GO
+```
+
+Se você deseja criar o usuário em um banco de dados específico, substitua master pelo nome do banco de dados:
+
+```sql
+Copy code
+USE <NomeDoBancoDeDados>;
+CREATE USER <NovoLogin> FOR LOGIN <NovoLogin>;
+GO
+```
+Atribuir Permissões ao Usuário:
+
+Dependendo do que você deseja que o usuário faça, você pode atribuir diferentes permissões. Por exemplo, para torná-lo um db_owner no banco de dados:
+
+```sql
+Copy code
+ALTER ROLE db_owner ADD MEMBER <NovoLogin>;
+GO
+```
+
+Consultar usuários novos detro do container
+```sql
+SELECT name, type_desc, is_disabled 
+FROM sys.server_principals
+WHERE type_desc IN ('SQL_LOGIN', 'WINDOWS_LOGIN', 'WINDOWS_GROUP');
+GO
+```
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
